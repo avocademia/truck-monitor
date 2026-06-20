@@ -1,0 +1,293 @@
+@use '../../../../app/globals.module.scss' as *;
+
+.inspection {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: $black;
+  }
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1.5px solid rgba($black, 0.15);
+  background: transparent;
+  color: rgba($black, 0.7);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($black, 0.05);
+    border-color: rgba($black, 0.25);
+    color: $black;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.loading,
+.error {
+  background: $white;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  p {
+    margin: 12px 0 0;
+    color: rgba($black, 0.6);
+    font-size: 0.95rem;
+  }
+}
+
+.loadingIcon,
+.errorIcon {
+  width: 48px;
+  height: 48px;
+  color: $primary-color;
+}
+
+.errorIcon {
+  color: #C0392B;
+}
+
+.summaryCard {
+  background: $white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.vehicleHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba($black, 0.08);
+}
+
+.emoji {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.vehicleInfo {
+  flex: 1;
+}
+
+.registration {
+  margin: 0 0 4px;
+  font-size: 1.35rem;
+  color: $black;
+  font-weight: 700;
+}
+
+.make {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba($black, 0.5);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: rgba($primary-color, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $black;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba($black, 0.5);
+  font-weight: 600;
+}
+
+.detailsSection {
+  background: $white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  color: $black;
+  font-weight: 600;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba($black, 0.4);
+  font-weight: 600;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  color: $black;
+  font-weight: 500;
+}
+
+.signOffGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.signOffBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signOffRole {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba($black, 0.5);
+  font-weight: 700;
+}
+
+.signOffDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.signOffLabel {
+  font-size: 0.8rem;
+  color: rgba($black, 0.5);
+  font-weight: 500;
+}
+
+.signOffValue {
+  font-size: 0.95rem;
+  color: $black;
+  font-weight: 600;
+}
+
+.commentBlock {
+  padding: 16px;
+  background: rgba($black, 0.02);
+  border-radius: 8px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.commentLabel {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: rgba($black, 0.5);
+  font-weight: 600;
+}
+
+.commentText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: $black;
+  line-height: 1.5;
+}
+
+.inspectionDate {
+  margin: 0;
+  font-size: 1.1rem;
+  color: $black;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .inspection {
+    padding: 16px 12px 96px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .summaryCard,
+  .detailsSection {
+    padding: 18px;
+  }
+
+  .vehicleHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .detailsGrid,
+  .signOffGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .signOffGrid {
+    gap: 20px;
+  }
+}

@@ -66,8 +66,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(inspection, { status: 201 })
   } catch (error) {
     console.error('Error creating inspection:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     return NextResponse.json(
-      { error: 'Failed to create inspection' },
+      { error: 'Failed to create inspection', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

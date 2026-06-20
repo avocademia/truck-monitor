@@ -4,6 +4,8 @@ import { useMemo, useState } from "react"
 import { Icon } from '@iconify/react'
 import { toast } from "react-toastify"
 import styles from './home.module.scss'
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 /* ==========================================================================
    Types
@@ -349,13 +351,13 @@ export default function PreTripInspectionForm({
         return initial
     })
 
+    const router = useRouter()
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({ [SECTIONS[0].id]: true })
 
     const [loadSecured, setLoadSecured] = useState<'yes' | 'no' | null>(null)
     const [driverCellPhone, setDriverCellPhone] = useState('')
     const [driverComments, setDriverComments] = useState('')
     const [inspectorComments, setInspectorComments] = useState('')
-    const [htmlError, setHTMLError] = useState()
 
     const [inspectedBySignature, setInspectedBySignature] = useState('')
     const [inspectedByDate, setInspectedByDate] = useState('')
@@ -432,29 +434,34 @@ export default function PreTripInspectionForm({
                         body: JSON.stringify(submission),
                     })
 
-                    console.log('Response:', response)
-
                     const result = await response.json()
-                    console.log('Inspection submitted successfully:', result)
+                    if (result) {
+                        router.push('/dashboard?tab=inspections')
+                    }
                 } catch (error:any) {
-                    setHTMLError(error)
-                    console.error('Error submitting inspection:', JSON.stringify(error))
+                    toast.error('Error submitting inspection', { hideProgressBar: true })
                 }
             }
             toast.success('Inspection submitted', { hideProgressBar: true })
         } catch (error) {
-            console.error('Error submitting inspection:', JSON.stringify(error))
             toast.error("Hmm... something went wrong, let's try that again", { hideProgressBar: true })
         } finally {
             setSubmitting(false)
         }
     }
-
-    if (htmlError) {
-        return <div>{htmlError}</div>
-    }
     return (
         <main className={styles.main}>
+            {/* Navigation */}
+            <nav className={styles.nav}>
+                <div className={styles.navContent}>
+                    <h1 className={styles.navTitle}>Truck Monitor</h1>
+                    <Link href="/dashboard" className={styles.navBtn}>
+                        <Icon icon="mdi:view-dashboard" />
+                        <span>Dashboard</span>
+                    </Link>
+                </div>
+            </nav>
+
             {/* Header / Progress */}
             <section className={styles.topBar}>
                 <div className={styles.topBarText}>

@@ -1,0 +1,140 @@
+@use '../../../../app/globals.module.scss' as *;
+
+.inspectionCard {
+  background: $white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba($black, 0.08);
+}
+
+.vehicleInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.vehicleDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.registration {
+  margin: 0;
+  font-size: 1.1rem;
+  color: $black;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.make {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: rgba($black, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  color: rgba($black, 0.3);
+  flex-shrink: 0;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.infoIcon {
+  width: 16px;
+  height: 16px;
+  color: $primary-color;
+  flex-shrink: 0;
+}
+
+.infoLabel {
+  color: rgba($black, 0.5);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  color: $black;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba($black, 0.06);
+  font-size: 0.85rem;
+}
+
+.dateIcon {
+  width: 14px;
+  height: 14px;
+  color: rgba($black, 0.4);
+}
+
+.date {
+  color: rgba($black, 0.5);
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .inspectionCard {
+    padding: 16px;
+  }
+
+  .registration {
+    font-size: 1rem;
+  }
+
+  .emoji {
+    font-size: 1.75rem;
+  }
+}

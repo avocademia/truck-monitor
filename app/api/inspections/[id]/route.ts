@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma'
 // GET /api/inspections/[id] - Get a single inspection
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const inspection = await prisma.inspection.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         items: true,
       },
@@ -34,13 +35,14 @@ export async function GET(
 // PUT /api/inspections/[id] - Update an inspection
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
 
     const inspection = await prisma.inspection.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         vehicleRegistration: body.header.vehicleRegistration,
         vehicleMake: body.header.vehicleMake,
@@ -89,11 +91,12 @@ export async function PUT(
 // DELETE /api/inspections/[id] - Delete an inspection
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await prisma.inspection.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
