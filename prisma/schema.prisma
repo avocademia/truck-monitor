@@ -49,10 +49,10 @@ model Inspection {
 model InspectionItem {
   id           String      @id @default(cuid())
   inspectionId String
-  itemId       String      // The checklist item ID (e.g., 'tire-pressure')
+  itemKey      String      // The checklist item key (e.g., 'tire-pressure' or 'tire-condition__horse')
   status       String?     // 'ok' | 'attention' | 'na'
-  subs         String?     // JSON array of selected sub-option IDs
   inspection   Inspection   @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
 
   @@index([inspectionId])
+  @@index([itemKey])
 }

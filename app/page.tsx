@@ -11,7 +11,7 @@ import styles from './home.module.scss'
 
 type ItemStatus = 'ok' | 'attention' | 'na'
 
-interface SubOption {
+interface Variant {
     id: string
     label: string
 }
@@ -20,7 +20,9 @@ interface ChecklistItemDef {
     id: string
     number: number
     label: string
-    subOptions?: SubOption[]
+    /** When present, this item is actually N independent checks (e.g. Horse vs Trailer)
+     *  that each need their own status — not one shared status for the item. */
+    variants?: Variant[]
 }
 
 interface SectionDef {
@@ -30,9 +32,18 @@ interface SectionDef {
     items: ChecklistItemDef[]
 }
 
-interface ItemState {
-    status: ItemStatus | null
-    subs: string[]
+/** A leaf is one independently-answerable row: either the item itself (no variants),
+ *  or one variant of it (e.g. "Hazard lights — Horse"). */
+interface LeafRef {
+    key: string
+    variantLabel?: string
+}
+
+function leavesForItem(item: ChecklistItemDef): LeafRef[] {
+    if (!item.variants || item.variants.length === 0) {
+        return [{ key: item.id }]
+    }
+    return item.variants.map((v) => ({ key: `${item.id}__${v.id}`, variantLabel: v.label }))
 }
 
 interface HeaderDetails {
@@ -52,7 +63,7 @@ interface HeaderDetails {
 
 export interface InspectionSubmission {
     header: HeaderDetails
-    items: Record<string, ItemState>
+    statuses: Record<string, ItemStatus | null>
     loadSecured: 'yes' | 'no' | null
     driverCellPhone: string
     driverComments: string
@@ -75,25 +86,25 @@ const SECTIONS: SectionDef[] = [
         icon: 'mdi:truck-outline',
         items: [
             { id: 'tire-pressure', number: 1, label: 'Tire pressure' },
-            { id: 'tire-condition', number: 2, label: 'Tire condition', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'tire-condition', number: 2, label: 'Tire condition', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
             { id: 'cleanliness', number: 3, label: 'Overall cleanliness of vehicle' },
             { id: 'oil-leaks', number: 4, label: 'Oil leaks' },
-            { id: 'indicators', number: 5, label: 'Indicators', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
-            { id: 'taillights', number: 6, label: 'Taillights', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'indicators', number: 5, label: 'Indicators', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'taillights', number: 6, label: 'Taillights', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
             { id: 'reverse-beeper', number: 7, label: 'Reverse beeper' },
-            { id: 'reverse-light', number: 8, label: 'Reverse light', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'reverse-light', number: 8, label: 'Reverse light', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
             { id: 'twist-locks', number: 9, label: 'Twist locks' },
-            { id: 'headlights', number: 10, label: 'Headlights', subOptions: [{ id: 'high', label: 'High' }, { id: 'low', label: 'Low' }] },
-            { id: 'hazard-lights', number: 11, label: 'Hazard lights', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
-            { id: 'brake-lights', number: 12, label: 'Brake lights', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'headlights', number: 10, label: 'Headlights', variants: [{ id: 'high', label: 'High' }, { id: 'low', label: 'Low' }] },
+            { id: 'hazard-lights', number: 11, label: 'Hazard lights', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'brake-lights', number: 12, label: 'Brake lights', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
             { id: 'spare-wheel', number: 13, label: 'Spare wheel' },
-            { id: 'horse-suspension', number: 14, label: 'Horse suspension', subOptions: [{ id: 'springs', label: 'Springs' }, { id: 'axle', label: 'Axle' }, { id: 'shocks', label: 'Shock absorbers' }] },
-            { id: 'trailer-suspension', number: 15, label: 'Trailer suspension', subOptions: [{ id: 'springs', label: 'Springs' }, { id: 'axle', label: 'Axle' }, { id: 'shocks', label: 'Shock absorbers' }] },
+            { id: 'horse-suspension', number: 14, label: 'Horse suspension', variants: [{ id: 'springs', label: 'Springs' }, { id: 'axle', label: 'Axle' }, { id: 'shocks', label: 'Shock absorbers' }] },
+            { id: 'trailer-suspension', number: 15, label: 'Trailer suspension', variants: [{ id: 'springs', label: 'Springs' }, { id: 'axle', label: 'Axle' }, { id: 'shocks', label: 'Shock absorbers' }] },
             { id: 'air-brake-lines', number: 16, label: 'Air brake lines' },
             { id: 'trailer-deck', number: 17, label: 'Trailer deck condition' },
             { id: 'lashing-points', number: 18, label: 'Lashing points' },
-            { id: 'mudflaps', number: 19, label: 'Mudflaps', subOptions: [{ id: 'present', label: 'Present' }, { id: 'missing', label: 'Missing' }] },
-            { id: 'wheel-nuts', number: 20, label: 'Wheel nuts & studs', subOptions: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
+            { id: 'mudflaps', number: 19, label: 'Mudflaps', variants: [{ id: 'present', label: 'Present' }, { id: 'missing', label: 'Missing' }] },
+            { id: 'wheel-nuts', number: 20, label: 'Wheel nuts & studs', variants: [{ id: 'horse', label: 'Horse' }, { id: 'trailer', label: 'Trailer' }] },
             { id: 'couple-pin', number: 21, label: 'Couple pin' },
             { id: 'trailer-stands', number: 22, label: 'Trailer stands (legs)' },
             { id: 'chassis-condition', number: 23, label: 'Chassis condition' },
@@ -121,7 +132,7 @@ const SECTIONS: SectionDef[] = [
         items: [
             { id: 'drive-belts', number: 32, label: 'Visible drive belts, wires and hoses' },
             { id: 'radiator-overflow', number: 33, label: 'Radiator overflow container level' },
-            { id: 'fluids-level', number: 34, label: 'Fluids at proper level', subOptions: [{ id: 'brake', label: 'Brake' }, { id: 'steering', label: 'Steering' }] },
+            { id: 'fluids-level', number: 34, label: 'Fluids at proper level', variants: [{ id: 'brake', label: 'Brake' }, { id: 'steering', label: 'Steering' }] },
             { id: 'engine-oil', number: 35, label: 'Engine oil level' },
             { id: 'washer-fluid', number: 36, label: 'Windshield washer fluid' },
             { id: 'battery', number: 37, label: 'Battery housing and connections' },
@@ -139,20 +150,20 @@ const SECTIONS: SectionDef[] = [
             { id: 'flashlight', number: 42, label: 'Flashlight' },
             { id: 'first-aid', number: 43, label: 'First aid kit - valid' },
             { id: 'fire-extinguisher', number: 44, label: 'Fire extinguisher - 2×6kg outside, 1×2kg cabin' },
-            { id: 'tools', number: 45, label: 'Tools', subOptions: [{ id: 'wheel-chocks', label: 'Wheel chocks' }, { id: 'toolbox', label: 'Toolbox' }] },
+            { id: 'tools', number: 45, label: 'Tools', variants: [{ id: 'wheel-chocks', label: 'Wheel chocks' }, { id: 'toolbox', label: 'Toolbox' }] },
             { id: 'steering-play', number: 46, label: 'Steering wheel play' },
             { id: 'fuel-tank', number: 47, label: 'Fuel tank condition' },
             { id: 'modifications', number: 48, label: 'Non-approved truck modifications' },
             { id: 'camera', number: 49, label: 'On-board camera / video recorder (in & out of cabin)' },
             { id: 'seat-covers', number: 50, label: 'Driver and passenger seat covers condition' },
             { id: 'seat-belts', number: 51, label: 'Seat belts - driver and passenger' },
-            { id: 'mirrors', number: 52, label: 'Rear view & side mirrors', subOptions: [{ id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }] },
+            { id: 'mirrors', number: 52, label: 'Rear view & side mirrors', variants: [{ id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }] },
             { id: 'parking-brake', number: 53, label: 'Parking brake' },
             { id: 'horn', number: 54, label: 'Horn' },
             { id: 'oil-pressure-gauge', number: 55, label: 'Oil pressure gauge' },
             { id: 'temp-gauge', number: 56, label: 'Engine temperature gauge' },
             { id: 'gps', number: 57, label: 'GPS system' },
-            { id: 'abs-light', number: 58, label: 'ABS dashboard indicator', subOptions: [{ id: 'on', label: 'On' }, { id: 'off', label: 'Off' }] },
+            { id: 'abs-light', number: 58, label: 'ABS dashboard indicator', variants: [{ id: 'on', label: 'On' }, { id: 'off', label: 'Off' }] },
             { id: 'brakes', number: 59, label: 'Brakes' },
             { id: 'comesa-insurance', number: 60, label: 'Valid COMESA insurance (truck and trailer)' },
             { id: 'kra-license', number: 61, label: 'Valid Goods In Transit licence (KRA)' },
@@ -164,7 +175,10 @@ const SECTIONS: SectionDef[] = [
     },
 ]
 
-const TOTAL_ITEMS = SECTIONS.reduce((sum, section) => sum + section.items.length, 0)
+const TOTAL_ITEMS = SECTIONS.reduce(
+    (sum, section) => sum + section.items.reduce((s, item) => s + leavesForItem(item).length, 0),
+    0
+)
 
 const STATUS_META: Record<ItemStatus, { label: string; icon: string }> = {
     ok: { label: 'OK', icon: 'mdi:check-circle' },
@@ -215,61 +229,70 @@ function StatusToggle({ value, onChange }: { value: ItemStatus | null, onChange:
     )
 }
 
-function ChecklistRow({
+function ChecklistItemBlock({
     item,
-    state,
-    onStatusChange,
-    onSubToggle,
+    statuses,
+    onLeafStatus,
 }: {
     item: ChecklistItemDef
-    state: ItemState
-    onStatusChange: (status: ItemStatus) => void
-    onSubToggle: (subID: string) => void
+    statuses: Record<string, ItemStatus | null>
+    onLeafStatus: (leafKey: string, status: ItemStatus) => void
 }) {
-    return (
-        <div className={`${styles.itemRow} ${state.status ? styles.itemRowAnswered : ''}`}>
-            <div className={styles.itemMain}>
-                <span className={styles.itemNumber}>{item.number}</span>
-                <div className={styles.itemLabelGroup}>
+    const leaves = leavesForItem(item)
+
+    // Simple item: one row, number + label + its own toggle.
+    if (leaves.length === 1 && !leaves[0].variantLabel) {
+        const leaf = leaves[0]
+        const status = statuses[leaf.key] ?? null
+        return (
+            <div className={`${styles.itemRow} ${status ? styles.itemRowAnswered : ''}`}>
+                <div className={styles.itemMain}>
+                    <span className={styles.itemNumber}>{item.number}</span>
                     <p className={styles.itemLabel}>{item.label}</p>
-                    {item.subOptions && (
-                        <div className={styles.subOptions}>
-                            {item.subOptions.map((sub) => (
-                                <button
-                                    key={sub.id}
-                                    type="button"
-                                    className={`${styles.subChip} ${state.subs.includes(sub.id) ? styles.subChipActive : ''}`}
-                                    onClick={() => onSubToggle(sub.id)}
-                                >
-                                    {sub.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </div>
+                <StatusToggle value={status} onChange={(s) => onLeafStatus(leaf.key, s)} />
             </div>
-            <StatusToggle value={state.status} onChange={onStatusChange} />
+        )
+    }
+
+    // Item with variants: each variant is checked and tracked independently.
+    return (
+        <div className={styles.itemGroup}>
+            <div className={styles.itemGroupHeader}>
+                <span className={styles.itemNumber}>{item.number}</span>
+                <p className={styles.itemLabel}>{item.label}</p>
+            </div>
+            <div className={styles.variantList}>
+                {leaves.map((leaf) => {
+                    const status = statuses[leaf.key] ?? null
+                    return (
+                        <div key={leaf.key} className={`${styles.variantRow} ${status ? styles.itemRowAnswered : ''}`}>
+                            <span className={styles.variantLabel}>{leaf.variantLabel}</span>
+                            <StatusToggle value={status} onChange={(s) => onLeafStatus(leaf.key, s)} />
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }
 
 function SectionCard({
     section,
-    itemStates,
+    statuses,
     isOpen,
     onToggleOpen,
-    onItemStatus,
-    onItemSub,
+    onLeafStatus,
 }: {
     section: SectionDef
-    itemStates: Record<string, ItemState>
+    statuses: Record<string, ItemStatus | null>
     isOpen: boolean
     onToggleOpen: () => void
-    onItemStatus: (itemID: string, status: ItemStatus) => void
-    onItemSub: (itemID: string, subID: string) => void
+    onLeafStatus: (leafKey: string, status: ItemStatus) => void
 }) {
-    const answeredCount = section.items.filter((item) => itemStates[item.id]?.status).length
-    const total = section.items.length
+    const allLeafKeys = section.items.flatMap((item) => leavesForItem(item).map((l) => l.key))
+    const answeredCount = allLeafKeys.filter((key) => statuses[key]).length
+    const total = allLeafKeys.length
     const complete = answeredCount === total
 
     return (
@@ -290,12 +313,11 @@ function SectionCard({
             {isOpen && (
                 <div className={styles.sectionBody}>
                     {section.items.map((item) => (
-                        <ChecklistRow
+                        <ChecklistItemBlock
                             key={item.id}
                             item={item}
-                            state={itemStates[item.id] ?? { status: null, subs: [] }}
-                            onStatusChange={(status) => onItemStatus(item.id, status)}
-                            onSubToggle={(subID) => onItemSub(item.id, subID)}
+                            statuses={statuses}
+                            onLeafStatus={onLeafStatus}
                         />
                     ))}
                 </div>
@@ -315,11 +337,13 @@ export default function PreTripInspectionForm({
 }) {
     const [header, setHeader] = useState<HeaderDetails>(emptyHeader)
 
-    const [itemStates, setItemStates] = useState<Record<string, ItemState>>(() => {
-        const initial: Record<string, ItemState> = {}
+    const [statuses, setStatuses] = useState<Record<string, ItemStatus | null>>(() => {
+        const initial: Record<string, ItemStatus | null> = {}
         SECTIONS.forEach((section) => {
             section.items.forEach((item) => {
-                initial[item.id] = { status: null, subs: [] }
+                leavesForItem(item).forEach((leaf) => {
+                    initial[leaf.key] = null
+                })
             })
         })
         return initial
@@ -331,6 +355,7 @@ export default function PreTripInspectionForm({
     const [driverCellPhone, setDriverCellPhone] = useState('')
     const [driverComments, setDriverComments] = useState('')
     const [inspectorComments, setInspectorComments] = useState('')
+    const [htmlError, setHTMLError] = useState()
 
     const [inspectedBySignature, setInspectedBySignature] = useState('')
     const [inspectedByDate, setInspectedByDate] = useState('')
@@ -341,12 +366,12 @@ export default function PreTripInspectionForm({
     const [submitting, setSubmitting] = useState(false)
 
     const answeredItems = useMemo(
-        () => Object.values(itemStates).filter((state) => state.status).length,
-        [itemStates]
+        () => Object.values(statuses).filter((status) => status).length,
+        [statuses]
     )
     const attentionItems = useMemo(
-        () => Object.values(itemStates).filter((state) => state.status === 'attention').length,
-        [itemStates]
+        () => Object.values(statuses).filter((status) => status === 'attention').length,
+        [statuses]
     )
     const progressPercent = Math.round((answeredItems / TOTAL_ITEMS) * 100)
 
@@ -354,19 +379,11 @@ export default function PreTripInspectionForm({
         setHeader((prev) => ({ ...prev, [field]: value }))
     }
 
-    const handleItemStatus = (itemID: string, status: ItemStatus) => {
-        setItemStates((prev) => ({
+    const handleLeafStatus = (leafKey: string, status: ItemStatus) => {
+        setStatuses((prev) => ({
             ...prev,
-            [itemID]: { ...prev[itemID], status: prev[itemID]?.status === status ? null : status },
+            [leafKey]: prev[leafKey] === status ? null : status,
         }))
-    }
-
-    const handleItemSub = (itemID: string, subID: string) => {
-        setItemStates((prev) => {
-            const current = prev[itemID]?.subs ?? []
-            const next = current.includes(subID) ? current.filter((id) => id !== subID) : [...current, subID]
-            return { ...prev, [itemID]: { ...prev[itemID], subs: next } }
-        })
     }
 
     const toggleSection = (sectionID: string) => {
@@ -389,7 +406,7 @@ export default function PreTripInspectionForm({
 
         const submission: InspectionSubmission = {
             header,
-            items: itemStates,
+            statuses,
             loadSecured,
             driverCellPhone,
             driverComments,
@@ -406,16 +423,36 @@ export default function PreTripInspectionForm({
             if (onSubmit) {
                 await onSubmit(submission)
             } else {
-                console.log('Inspection submitted', submission)
+                try {
+                    const response = await fetch('/api/inspections', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(submission),
+                    })
+
+                    console.log('Response:', response)
+
+                    const result = await response.json()
+                    console.log('Inspection submitted successfully:', result)
+                } catch (error:any) {
+                    setHTMLError(error)
+                    console.error('Error submitting inspection:', JSON.stringify(error))
+                }
             }
             toast.success('Inspection submitted', { hideProgressBar: true })
         } catch (error) {
+            console.error('Error submitting inspection:', JSON.stringify(error))
             toast.error("Hmm... something went wrong, let's try that again", { hideProgressBar: true })
         } finally {
             setSubmitting(false)
         }
     }
 
+    if (htmlError) {
+        return <div>{htmlError}</div>
+    }
     return (
         <main className={styles.main}>
             {/* Header / Progress */}
@@ -511,11 +548,10 @@ export default function PreTripInspectionForm({
                 <SectionCard
                     key={section.id}
                     section={section}
-                    itemStates={itemStates}
+                    statuses={statuses}
                     isOpen={!!openSections[section.id]}
                     onToggleOpen={() => toggleSection(section.id)}
-                    onItemStatus={handleItemStatus}
-                    onItemSub={handleItemSub}
+                    onLeafStatus={handleLeafStatus}
                 />
             ))}
 

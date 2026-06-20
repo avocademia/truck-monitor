@@ -30,18 +30,18 @@ export async function POST(request: NextRequest) {
 
     const inspection = await prisma.inspection.create({
       data: {
-        vehicleRegistration: body.vehicleRegistration,
-        vehicleMake: body.vehicleMake,
-        edmReading: body.edmReading,
-        trailerRegistration: body.trailerRegistration,
-        driverName: body.driverName,
-        driverAge: body.driverAge,
-        licenceExpiryDate: body.licenceExpiryDate,
-        tripFrom: body.tripFrom,
-        tripTo: body.tripTo,
-        consignee: body.consignee,
-        cargoType: body.cargoType,
-        hazmat: body.hazmat || false,
+        vehicleRegistration: body.header.vehicleRegistration,
+        vehicleMake: body.header.vehicleMake,
+        edmReading: body.header.edmReading,
+        trailerRegistration: body.header.trailerRegistration,
+        driverName: body.header.driverName,
+        driverAge: body.header.driverAge,
+        licenceExpiryDate: body.header.licenceExpiryDate,
+        tripFrom: body.header.tripFrom,
+        tripTo: body.header.tripTo,
+        consignee: body.header.consignee,
+        cargoType: body.header.cargoType,
+        hazmat: body.header.hazmat || false,
         loadSecured: body.loadSecured,
         driverCellPhone: body.driverCellPhone,
         driverComments: body.driverComments,
@@ -51,9 +51,12 @@ export async function POST(request: NextRequest) {
         approvedBySignature: body.approvedBySignature,
         approvedByDate: body.approvedByDate,
         approvedByTime: body.approvedByTime,
-        items: body.items ? {
-          create: body.items,
-        } : undefined,
+        items: {
+          create: Object.entries(body.statuses || {}).map(([itemKey, status]) => ({
+            itemKey,
+            status: status as string | null,
+          })),
+        },
       },
       include: {
         items: true,
