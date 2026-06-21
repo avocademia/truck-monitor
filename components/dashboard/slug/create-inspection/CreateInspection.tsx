@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Icon } from '@iconify/react'
 import { toast } from "react-toastify"
 import styles from './home.module.scss'
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useUserStore } from '@/stores/userStore'
 
 /* ==========================================================================
    Types
@@ -61,6 +62,7 @@ interface HeaderDetails {
     consignee: string
     cargoType: string
     hazmat: boolean
+    driverPhone: string
 }
 
 export interface InspectionSubmission {
@@ -72,9 +74,9 @@ export interface InspectionSubmission {
     inspectorComments: string
     inspectedBySignature: string
     inspectedByDate: string
-    approvedBySignature: string
-    approvedByDate: string
-    approvedByTime: string
+    inspectorId: number
+    driverId: number
+    vehicleId: string
 }
 
 /* ==========================================================================
@@ -201,6 +203,7 @@ const emptyHeader: HeaderDetails = {
     consignee: '',
     cargoType: '',
     hazmat: false,
+    driverPhone: '',
 }
 
 /* ==========================================================================
@@ -337,7 +340,12 @@ export default function CreateInspection({
 }: {
     onSubmit?: (submission: InspectionSubmission) => void | Promise<void>
 }) {
+    const user = useUserStore((state) => state.user)
     const [header, setHeader] = useState<HeaderDetails>(emptyHeader)
+    const [vehicleSearch, setVehicleSearch] = useState('')
+    const [vehicleResults, setVehicleResults] = useState<any[]>([])
+    const [selectedVehicle, setSelectedVehicle] = useState<any>(null)
+    const [selectedDriver, setSelectedDriver] = useState<any>(null)
 
     const [statuses, setStatuses] = useState<Record<string, ItemStatus | null>>(() => {
         const initial: Record<string, ItemStatus | null> = {}
@@ -361,9 +369,8 @@ export default function CreateInspection({
 
     const [inspectedBySignature, setInspectedBySignature] = useState('')
     const [inspectedByDate, setInspectedByDate] = useState('')
-    const [approvedBySignature, setApprovedBySignature] = useState('')
-    const [approvedByDate, setApprovedByDate] = useState('')
-    const [approvedByTime, setApprovedByTime] = useState('')
+    const [driverId, setDriverId] = useState<number | null>(null)
+    const [vehicleId, setVehicleId] = useState<string | null>(null)
 
     const [submitting, setSubmitting] = useState(false)
 
@@ -396,6 +403,62 @@ export default function CreateInspection({
         setOpenSections(Object.fromEntries(SECTIONS.map((s) => [s.id, true])))
     }
 
+    // Auto-fill inspector with logged-in user
+    useEffect(() => {
+        if (user) {
+            setInspectedBySignature(`${user.first_name} ${user.last_name}`)
+            setInspectedByDate(new Date().toISOString().split('T')[0])
+        }
+    }, [user])
+
+    // Search vehicles
+    useEffect(() => {
+        async function searchVehicles() {
+            if (vehicleSearch.length >= 2) {
+                try {
+                    const response = await fetch(`/api/vehicles?search=${vehicleSearch}`)
+                    if (response.ok) {
+                        const data = await response.json()
+                        setVehicleResults(data)
+                    }
+                } catch (error) {
+                    console.error('Error searching vehicles:', error)
+                }
+            } else {
+                setVehicleResults([])
+            }
+        }
+        const debounceTimer = setTimeout(searchVehicles, 300)
+        return () => clearTimeout(debounceTimer)
+    }, [vehicleSearch])
+
+    // Handle vehicle selection
+    const handleVehicleSelect = (vehicle: any) => {
+        setSelectedVehicle(vehicle)
+        setVehicleId(vehicle.id)
+        setHeader((prev) => ({
+            ...prev,
+            vehicleRegistration: vehicle.registration_no,
+            vehicleMake: vehicle.make || '',
+            trailerRegistration: vehicle.attached_trailer?.registration_no || '',
+        }))
+        setVehicleSearch('')
+        setVehicleResults([])
+
+        // Auto-fill driver from vehicle assignment
+        if (vehicle.assigned_driver) {
+            setSelectedDriver(vehicle.assigned_driver)
+            setDriverId(vehicle.assigned_driver.id)
+            setHeader((prev) => ({
+                ...prev,
+                driverName: `${vehicle.assigned_driver.first_name} ${vehicle.assigned_driver.last_name}`,
+                driverAge: vehicle.assigned_driver.dob ? String(new Date().getFullYear() - new Date(vehicle.assigned_driver.dob).getFullYear()) : '',
+                licenceExpiryDate: vehicle.assigned_driver.license_exp_date ? new Date(vehicle.assigned_driver.license_exp_date).toISOString().split('T')[0] : '',
+                driverPhone: vehicle.assigned_driver.phone || '',
+            }))
+        }
+    }
+
     const handleSubmit = async () => {
         if (!header.vehicleRegistration.trim() || !header.driverName.trim()) {
             toast.error('Vehicle registration and driver name are required', { hideProgressBar: true })
@@ -403,6 +466,19 @@ export default function CreateInspection({
         }
         if (answeredItems < TOTAL_ITEMS) {
             toast.error(`${TOTAL_ITEMS - answeredItems} item(s) still need a status before you can submit`, { hideProgressBar: true })
+            return
+        }
+
+        if (!user) {
+            toast.error('User not authenticated', { hideProgressBar: true })
+            return
+        }
+        if (!selectedVehicle || !vehicleId) {
+            toast.error('Please select a vehicle', { hideProgressBar: true })
+            return
+        }
+        if (!selectedDriver || !driverId) {
+            toast.error('Vehicle must have an assigned driver', { hideProgressBar: true })
             return
         }
 
@@ -415,9 +491,9 @@ export default function CreateInspection({
             inspectorComments,
             inspectedBySignature,
             inspectedByDate,
-            approvedBySignature,
-            approvedByDate,
-            approvedByTime,
+            inspectorId: user.id,
+            driverId,
+            vehicleId,
         }
 
         setSubmitting(true)
@@ -488,12 +564,34 @@ export default function CreateInspection({
                 <h2 className={styles.cardTitle}><Icon icon="mdi:clipboard-text-outline" /> Vehicle &amp; Trip Details</h2>
                 <div className={styles.detailsGrid}>
                     <label className={styles.formField}>
+                        <span>Search vehicle</span>
+                        <input 
+                            value={vehicleSearch} 
+                            onChange={(e) => setVehicleSearch(e.target.value)} 
+                            placeholder="Search by registration..."
+                        />
+                        {vehicleResults.length > 0 && (
+                            <div className={styles.vehicleResults}>
+                                {vehicleResults.map((vehicle) => (
+                                    <div 
+                                        key={vehicle.id} 
+                                        className={styles.vehicleResult}
+                                        onClick={() => handleVehicleSelect(vehicle)}
+                                    >
+                                        <span>{vehicle.registration_no}</span>
+                                        <span>{vehicle.make} {vehicle.model}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </label>
+                    <label className={styles.formField}>
                         <span>Vehicle registration</span>
-                        <input value={header.vehicleRegistration} onChange={(e) => updateHeader('vehicleRegistration', e.target.value)} placeholder="e.g. KDV 279X" />
+                        <input value={header.vehicleRegistration} onChange={(e) => updateHeader('vehicleRegistration', e.target.value)} placeholder="e.g. KDV 279X" disabled />
                     </label>
                     <label className={styles.formField}>
                         <span>Vehicle make</span>
-                        <input value={header.vehicleMake} onChange={(e) => updateHeader('vehicleMake', e.target.value)} placeholder="e.g. Scania" />
+                        <input value={header.vehicleMake} onChange={(e) => updateHeader('vehicleMake', e.target.value)} placeholder="e.g. Scania" disabled />
                     </label>
                     <label className={styles.formField}>
                         <span>EDM reading</span>
@@ -504,16 +602,20 @@ export default function CreateInspection({
                         <input value={header.trailerRegistration} onChange={(e) => updateHeader('trailerRegistration', e.target.value)} />
                     </label>
                     <label className={styles.formField}>
-                        <span>Driver name</span>
-                        <input value={header.driverName} onChange={(e) => updateHeader('driverName', e.target.value)} />
+                        <span>Driver name (assigned to vehicle)</span>
+                        <input value={header.driverName} onChange={(e) => updateHeader('driverName', e.target.value)} disabled />
                     </label>
                     <label className={styles.formField}>
                         <span>Driver age</span>
-                        <input type="number" value={header.driverAge} onChange={(e) => updateHeader('driverAge', e.target.value)} />
+                        <input type="number" value={header.driverAge} onChange={(e) => updateHeader('driverAge', e.target.value)} disabled />
                     </label>
                     <label className={styles.formField}>
                         <span>Driving licence expiry</span>
-                        <input type="date" value={header.licenceExpiryDate} onChange={(e) => updateHeader('licenceExpiryDate', e.target.value)} />
+                        <input type="date" value={header.licenceExpiryDate} onChange={(e) => updateHeader('licenceExpiryDate', e.target.value)} disabled />
+                    </label>
+                    <label className={styles.formField}>
+                        <span>Driver phone</span>
+                        <input value={header.driverPhone} onChange={(e) => updateHeader('driverPhone', e.target.value)} disabled />
                     </label>
                     <label className={styles.formField}>
                         <span>Consignee</span>
@@ -598,32 +700,15 @@ export default function CreateInspection({
                 <h2 className={styles.cardTitle}><Icon icon="mdi:draw-pen" /> Sign-off</h2>
                 <div className={styles.signOffGrid}>
                     <div className={styles.signOffBlock}>
-                        <p className={styles.signOffRole}>Driver</p>
+                        <p className={styles.signOffRole}>Inspector</p>
                         <label className={styles.formField}>
                             <span>Inspected by (signature / name)</span>
-                            <input value={inspectedBySignature} onChange={(e) => setInspectedBySignature(e.target.value)} />
+                            <input value={inspectedBySignature} onChange={(e) => setInspectedBySignature(e.target.value)} disabled />
                         </label>
                         <label className={styles.formField}>
                             <span>Date</span>
-                            <input type="date" value={inspectedByDate} onChange={(e) => setInspectedByDate(e.target.value)} />
+                            <input type="date" value={inspectedByDate} onChange={(e) => setInspectedByDate(e.target.value)} disabled />
                         </label>
-                    </div>
-                    <div className={styles.signOffBlock}>
-                        <p className={styles.signOffRole}>Health &amp; Safety Officer / Yard Supervisor</p>
-                        <label className={styles.formField}>
-                            <span>Approved for departure by</span>
-                            <input value={approvedBySignature} onChange={(e) => setApprovedBySignature(e.target.value)} />
-                        </label>
-                        <div className={styles.dateTimeRow}>
-                            <label className={styles.formField}>
-                                <span>Date</span>
-                                <input type="date" value={approvedByDate} onChange={(e) => setApprovedByDate(e.target.value)} />
-                            </label>
-                            <label className={styles.formField}>
-                                <span>Time</span>
-                                <input type="time" value={approvedByTime} onChange={(e) => setApprovedByTime(e.target.value)} />
-                            </label>
-                        </div>
                     </div>
                 </div>
             </section>

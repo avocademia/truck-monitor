@@ -9,50 +9,197 @@ datasource db {
   provider = "mysql"
 }
 
+enum IdentificationType {
+     NATIONAL_ID
+     PASSPORT
+     DRIVERS_LICENSE
+}
+
+enum UserRole {
+    DRIVER
+    INSPECTOR
+    MANAGEMENT
+}
+
+model User {
+     id Int @id @default(autoincrement())
+     first_name String
+     middle_name String?
+     last_name String
+     dob DateTime
+     email String @unique
+     phone String @unique
+     nationality String
+     id_no String
+     license_exp_date DateTime?
+     id_type IdentificationType
+     role UserRole
+     created_at DateTime @default(now())
+     created_by Int?
+     passcode String?
+     passcode_expiry DateTime?
+
+     inspectionsAsDriver Inspection[] @relation("DriverInspections")
+inspectionsAsInspector Inspection[] @relation("InspectorInspections")
+inspectionsApproved Inspection[] @relation("ApprovedInspections")
+   
+     assignedVehicles Vehicle[] @relation("AssignedVehicle")
+
+     sessions Session[]
+     createdUsers User[] @relation("UserCreator")
+
+     creator User? @relation("UserCreator", fields: [created_by], references: [id])
+}
+
+model Session {
+     id Int @id @default(autoincrement())
+     ip String
+     user_id Int
+     access_token String
+     refresh_token String
+     expired Boolean @default(false)
+     created_at DateTime @default(now()) 
+
+     user User @relation(fields: [user_id], references:[id])
+}
+
+enum VehicleBody {
+  MOTORBIKE
+  PICKUP
+  VAN
+  BOX_TRUCK
+  FLATBED_TRUCK
+  REFRIGERATED_TRUCK
+
+  // Trailer types
+  TRAILER
+  FLATBED_TRAILER
+  LOWBED_TRAILER
+  REFRIGERATED_TRAILER
+  TANKER_TRAILER
+  CONTAINER_TRAILER
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+model Vehicle {
+  id String @id @default(cuid())
+
+  registration_no String @unique
+  registration_country String
+
+  make String?
+  model String?
+  year Int?
+
+  body_type VehicleBody
+  status VehicleStatus @default(AVAILABLE)
+
+  capacity_kg Float?
+  capacity_m3 Float?
+
+  current_odometer Float?
+
+  // Trailer relationship
+  attached_trailer_id String? @unique
+  attached_trailer Vehicle? @relation("TruckTrailer", fields: [attached_trailer_id], references: [id])
+
+  attached_to_truck Vehicle? @relation("TruckTrailer")
+  inspections Inspection[]
+ 
+  assigned_driver_id Int?
+
+  assigned_driver User? @relation("AssignedVehicle",fields: [assigned_driver_id],references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum InspectionStatus {
+    DRAFT
+    SUBMITTED
+    APPROVED
+    REJECTED
+}
+
+enum InspectionType {
+  DAILY
+  PRE_TRIP
+  POST_TRIP
+  MAINTENANCE
+  ANNUAL
+  SAFETY
+}
+
 model Inspection {
-  id                    String   @id @default(cuid())
-  createdAt             DateTime @default(now())
+  id String @id @default(cuid())
 
-  // Header details
-  vehicleRegistration   String
-  vehicleMake           String?
-  edmReading            String?
-  trailerRegistration   String?
-  driverName            String
-  driverAge             String?
-  licenceExpiryDate     String?
-  tripFrom              String?
-  tripTo                String?
-  consignee             String?
-  cargoType             String?
-  hazmat                Boolean  @default(false)
+  created_at DateTime @default(now())
+  type InspectionType
+  vehicle_id String
+  driver_id Int
+  inspector_id Int?
+  approved_by_id Int?
 
-  // Post loading
-  loadSecured           String?  // 'yes' | 'no' | null
-  driverCellPhone       String?
+  vehicle Vehicle @relation(fields: [vehicle_id], references: [id])
 
-  // Comments
-  driverComments        String?
-  inspectorComments     String?
+  driver User @relation("DriverInspections", fields: [driver_id], references: [id])
+  inspector User? @relation("InspectorInspections", fields: [inspector_id], references: [id])
+  approved_by User? @relation("ApprovedInspections", fields: [approved_by_id], references: [id])
 
-  // Sign-off
-  inspectedBySignature  String?
-  inspectedByDate       String?
-  approvedBySignature   String?
-  approvedByDate        String?
-  approvedByTime        String?
+  trip_from String?
+  trip_to String?
 
-  // Related items
-  items                 InspectionItem[]
+  consignee String?
+
+  cargo_type_id Int?
+  hazmat Boolean @default(false)
+
+  load_secured Boolean?
+
+  driver_comments String?
+  inspector_comments String?
+
+  approved_at DateTime?
+
+  inspection_status InspectionStatus @default(DRAFT)
+
+  items InspectionItem[]
+ 
+
+  cargo_type CargoType? @relation(fields: [cargo_type_id], references:[id])
+
+  @@index([vehicle_id])
+  @@index([driver_id])
+}
+
+enum InspectionItemStatus {
+    OK
+    ATTENTION
+    NOT_APPLICABLE
 }
 
 model InspectionItem {
-  id           String      @id @default(cuid())
-  inspectionId String
-  itemKey      String      // The checklist item key (e.g., 'tire-pressure' or 'tire-condition__horse')
-  status       String?     // 'ok' | 'attention' | 'na'
-  inspection   Inspection   @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  id Int @id @default(autoincrement())
+  inspection_id String
+  item_key String
+  status InspectionItemStatus
+  inspection Inspection @relation(fields: [inspection_id], references: [id], onDelete: Cascade)
 
-  @@index([inspectionId])
-  @@index([itemKey])
+  @@index([inspection_id])
+  @@index([item_key])
+}
+
+model CargoType {
+  id Int @id @default(autoincrement())
+  name String @unique
+
+  created_at DateTime @default(now())
+
+  inspections Inspection[]
 }

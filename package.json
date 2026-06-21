@@ -12,16 +12,20 @@
     "@iconify/react": "^6.0.2",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "jsonwebtoken": "^9.0.3",
+    "mailgun.js": "^13.2.0",
     "mariadb": "^3.5.3",
     "next": "^16.2.9",
     "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-toastify": "^11.1.0",
-    "sass": "^1.101.0"
+    "sass": "^1.101.0",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
