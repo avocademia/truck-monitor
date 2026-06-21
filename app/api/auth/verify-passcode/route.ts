@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { cookies } from 'next/headers'
 import { generateAccessToken, generateRefreshToken } from '@/lib/jwt'
 
 // POST /api/auth/verify-passcode - Verify passcode and create session
@@ -45,8 +44,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client IP
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
                'unknown'
 
     // Create JWT tokens
@@ -76,17 +75,10 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Set cookies - only access token in cookie, refresh token stays in database only
-    const cookieStore = await cookies()
-    cookieStore.set('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 // 1 hour
-    })
-
+    // Return token in response body instead of cookie
     return NextResponse.json({
       success: true,
+      accessToken,
       user: {
         id: user.id,
         email: user.email,

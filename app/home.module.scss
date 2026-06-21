@@ -1,0 +1,965 @@
+/* ==========================================================================
+   Fonts
+   Add these to your root layout (next/font is preferred over this @import,
+   but this keeps the module self-contained for now):
+   Oswald (display) · Inter (body) · JetBrains Mono (stats / data)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+
+/* ==========================================================================
+   Design tokens
+   ========================================================================== */
+
+$navy: #14213D;
+$navy-light: #1F2E54;
+$red: #D7263D;
+$red-dark: #B01F32;
+$amber: #E8A33D;
+$cream: #F7F5F1;
+$white: #FFFFFF;
+$charcoal: #1A1A1A;
+$gray: #6B7280;
+
+$font-display: 'Oswald', sans-serif;
+$font-body: 'Inter', sans-serif;
+$font-mono: 'JetBrains Mono', monospace;
+
+/* ==========================================================================
+   Shared placeholders
+   ========================================================================== */
+
+%btn-reset {
+    border: none;
+    cursor: pointer;
+    font-family: $font-body;
+    background: none;
+}
+
+%container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+%section-pad {
+    padding: 88px 24px;
+}
+
+/* ==========================================================================
+   Page base
+   ========================================================================== */
+
+.page {
+    font-family: $font-body;
+    color: $charcoal;
+    background: $white;
+    overflow-x: hidden;
+}
+
+.sectionEyebrow {
+    font-family: $font-mono;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $red;
+    margin: 0 0 12px;
+}
+
+.sectionEyebrowLight {
+    color: $amber;
+}
+
+.sectionHeading {
+    max-width: 640px;
+    margin: 0 0 48px;
+
+    h2 {
+        font-family: $font-display;
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
+        font-weight: 600;
+        line-height: 1.2;
+        margin: 0;
+        color: $navy;
+    }
+}
+
+/* ==========================================================================
+   Image placeholder
+   Striped + labeled so it reads unmistakably as "drop an image here" rather
+   than as part of the final visual design. Delete once real photos are in.
+   ========================================================================== */
+
+.imagePlaceholder {
+    position: relative;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba($amber, 0.55) 0px,
+            rgba($amber, 0.55) 14px,
+            rgba($navy, 0.45) 14px,
+            rgba($navy, 0.45) 28px
+        );
+    border: 2px dashed rgba($navy, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageFill {
+    object-fit: cover;
+}
+
+.imagePlaceholderLabel {
+    position: relative;
+    z-index: 2;
+    padding: 6px 14px;
+    background: rgba($charcoal, 0.75);
+    color: $white;
+    font-family: $font-mono;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btnPrimary {
+    @extend %btn-reset;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 26px;
+    border-radius: 4px;
+    background: $red;
+    color: $white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    &:hover {
+        background: $red-dark;
+
+        svg {
+            transform: translateX(3px);
+        }
+    }
+}
+
+.btnGhost {
+    @extend %btn-reset;
+    padding: 14px 26px;
+    border-radius: 4px;
+    border: 1.5px solid rgba($white, 0.5);
+    color: $white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: $white;
+        background: rgba($white, 0.08);
+    }
+}
+
+/* ==========================================================================
+   Navbar
+   ========================================================================== */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: $navy;
+    border-bottom: 3px solid $red;
+}
+
+.navInner {
+    @extend %container;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.brand {
+    @extend %btn-reset;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.logoMark {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.brandText {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    font-family: $font-display;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+    color: $white;
+    line-height: 1.1;
+
+    small {
+        font-family: $font-body;
+        font-weight: 500;
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba($white, 0.55);
+    }
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    margin: 0 auto;
+
+    button {
+        @extend %btn-reset;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: rgba($white, 0.78);
+        white-space: nowrap;
+        padding: 4px 0;
+        position: relative;
+
+        &:hover {
+            color: $white;
+        }
+    }
+}
+
+.navActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.navContactBtn {
+    @extend %btn-reset;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: rgba($white, 0.85);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid rgba($white, 0.2);
+    transition: all 0.2s ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        border-color: rgba($white, 0.5);
+        color: $white;
+    }
+}
+
+.navCta {
+    @extend %btn-reset;
+    padding: 9px 18px;
+    border-radius: 4px;
+    background: $red;
+    color: $white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: $red-dark;
+    }
+}
+
+.menuToggle {
+    @extend %btn-reset;
+    display: none;
+    color: $white;
+    margin-left: auto;
+
+    svg {
+        width: 26px;
+        height: 26px;
+    }
+}
+
+.mobileMenu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 24px 24px;
+    background: $navy-light;
+
+    button,
+    a {
+        @extend %btn-reset;
+        text-align: left;
+        padding: 12px 4px;
+        color: rgba($white, 0.85);
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .navCta {
+        justify-content: center;
+        margin-top: 8px;
+    }
+}
+
+.mobileMenuDivider {
+    height: 1px;
+    background: rgba($white, 0.12);
+    margin: 8px 0;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: $navy;
+}
+
+.heroBg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.heroOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(100deg, rgba($navy, 0.94) 0%, rgba($navy, 0.75) 45%, rgba($navy, 0.4) 100%);
+}
+
+.heroContent {
+    @extend %container;
+    position: relative;
+    z-index: 2;
+    padding-top: 60px;
+    padding-bottom: 110px;
+}
+
+.heroEyebrow {
+    font-family: $font-mono;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $amber;
+    margin: 0 0 18px;
+}
+
+.hero h1 {
+    font-family: $font-display;
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: $white;
+    margin: 0 0 24px;
+    max-width: 720px;
+}
+
+.heroSubtitle {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: rgba($white, 0.85);
+    max-width: 540px;
+    margin: 0 0 36px;
+}
+
+.heroActions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* Diagonal cut at the base of the hero — echoes the cover page of the
+   company profile, carried through as the page's signature transition. */
+.heroCut {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 90px;
+    background: $white;
+    clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 100%);
+}
+
+/* ==========================================================================
+   Stats strip
+   ========================================================================== */
+
+.stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    flex-wrap: wrap;
+    padding: 36px 24px;
+    background: $cream;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.statValue {
+    font-family: $font-mono;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: $navy;
+}
+
+.statLabel {
+    font-size: 0.78rem;
+    color: $gray;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statDivider {
+    width: 1px;
+    height: 32px;
+    background: rgba($navy, 0.15);
+}
+
+/* ==========================================================================
+   About
+   ========================================================================== */
+
+.about {
+    @extend %container;
+    @extend %section-pad;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 64px;
+    align-items: center;
+}
+
+.aboutText {
+    h2 {
+        font-family: $font-display;
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        font-weight: 600;
+        line-height: 1.25;
+        color: $navy;
+        margin: 0 0 20px;
+    }
+
+    p {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: $gray;
+        margin: 0 0 16px;
+    }
+}
+
+/* ==========================================================================
+   Services / core strengths
+   ========================================================================== */
+
+.services {
+    @extend %container;
+    @extend %section-pad;
+}
+
+.strengthsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.strengthCard {
+    padding: 32px 28px;
+    border-radius: 6px;
+    background: $cream;
+    border-top: 3px solid $red;
+
+    h3 {
+        font-family: $font-display;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: $navy;
+        margin: 16px 0 18px;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: $gray;
+
+        svg {
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            color: $red;
+        }
+    }
+}
+
+.strengthIcon {
+    width: 32px;
+    height: 32px;
+    color: $red;
+}
+
+/* ==========================================================================
+   Corridors — signature route visualization
+   ========================================================================== */
+
+.corridors {
+    @extend %section-pad;
+    background: $navy;
+    position: relative;
+}
+
+.corridorsHeading,
+.whyUsHeading {
+    color: $white;
+}
+
+.corridors .sectionHeading {
+    @extend %container;
+    margin-bottom: 56px;
+}
+
+.corridorList {
+    @extend %container;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.corridorRow {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.corridorName {
+    font-family: $font-mono;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $amber;
+}
+
+.routeLine {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding: 4px 0 10px;
+}
+
+.routeStop {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.routeDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $red;
+    border: 2px solid $white;
+    flex-shrink: 0;
+}
+
+.routeCity {
+    margin-left: 10px;
+    margin-right: 14px;
+    font-family: $font-display;
+    font-size: 1rem;
+    font-weight: 500;
+    color: $white;
+    white-space: nowrap;
+}
+
+.routeConnector {
+    width: 64px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, rgba($white, 0.5) 0, rgba($white, 0.5) 6px, transparent 6px, transparent 12px);
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Fleet
+   ========================================================================== */
+
+.fleet {
+    @extend %container;
+    @extend %section-pad;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 64px;
+    align-items: center;
+}
+
+.fleetText {
+    h2 {
+        font-family: $font-display;
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        font-weight: 600;
+        line-height: 1.25;
+        color: $navy;
+        margin: 0 0 24px;
+    }
+}
+
+.fleetList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        color: $charcoal;
+
+        svg {
+            width: 22px;
+            height: 22px;
+            color: $red;
+            flex-shrink: 0;
+        }
+    }
+}
+
+/* ==========================================================================
+   Why partner with us
+   ========================================================================== */
+
+.whyUs {
+    @extend %section-pad;
+    background: $navy-light;
+}
+
+.whyUs .sectionHeading {
+    @extend %container;
+}
+
+.whyUsGrid {
+    @extend %container;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.whyUsCard {
+    padding: 26px 18px;
+    border-radius: 6px;
+    background: rgba($white, 0.05);
+    border: 1px solid rgba($white, 0.1);
+    text-align: center;
+
+    h3 {
+        font-family: $font-display;
+        font-size: 1rem;
+        font-weight: 600;
+        color: $white;
+        margin: 14px 0 8px;
+    }
+
+    p {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: rgba($white, 0.65);
+        margin: 0;
+    }
+}
+
+.whyUsIcon {
+    width: 28px;
+    height: 28px;
+    color: $amber;
+}
+
+/* ==========================================================================
+   Contact / CTA
+   ========================================================================== */
+
+.contact {
+    position: relative;
+    overflow: hidden;
+    padding: 100px 24px;
+}
+
+.contactBg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.contactOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(100deg, rgba($red-dark, 0.93) 0%, rgba($navy, 0.93) 100%);
+}
+
+.contactContent {
+    @extend %container;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+
+    h2 {
+        font-family: $font-display;
+        font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+        font-weight: 600;
+        color: $white;
+        margin: 0 0 36px;
+    }
+}
+
+.contactCards {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+}
+
+.contactCard {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    border-radius: 4px;
+    background: rgba($white, 0.1);
+    border: 1px solid rgba($white, 0.2);
+    color: $white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s ease;
+
+    svg {
+        width: 18px;
+        height: 18px;
+        color: $amber;
+    }
+
+    &:hover {
+        background: rgba($white, 0.18);
+    }
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.footer {
+    background: $charcoal;
+    padding: 48px 24px 28px;
+}
+
+.footerTop {
+    @extend %container;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba($white, 0.1);
+}
+
+.footerBrand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    button {
+        @extend %btn-reset;
+        font-size: 0.85rem;
+        color: rgba($white, 0.6);
+
+        &:hover {
+            color: $white;
+        }
+    }
+}
+
+.footerBottom {
+    @extend %container;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 24px;
+    font-size: 0.8rem;
+    color: rgba($white, 0.45);
+}
+
+.footerTagline {
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 980px) {
+    .navLinks,
+    .navActions {
+        display: none;
+    }
+
+    .menuToggle {
+        display: flex;
+    }
+
+    .mobileMenu {
+        display: flex;
+    }
+
+    .about,
+    .fleet {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+
+    .fleet {
+        .imagePlaceholder {
+            order: -1;
+        }
+    }
+
+    .strengthsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .whyUsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .about,
+    .services,
+    .corridors,
+    .fleet,
+    .whyUs {
+        padding: 56px 20px;
+    }
+
+    .hero {
+        min-height: 100vh;
+    }
+
+    .heroActions {
+        flex-direction: column;
+        align-items: stretch;
+
+        button {
+            justify-content: center;
+        }
+    }
+
+    .stats {
+        gap: 20px 28px;
+    }
+
+    .whyUsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .contactCards {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .footerTop,
+    .footerBottom {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .routeCity {
+        font-size: 0.9rem;
+    }
+
+    .routeConnector {
+        width: 36px;
+    }
+}

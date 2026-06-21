@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { verifyAccessToken } from '@/lib/jwt'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/auth/validate-token - Validate access token and return user info
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const accessToken = cookieStore.get('access_token')?.value
+    const authHeader = request.headers.get('authorization')
+    const accessToken = authHeader?.replace('Bearer ', '')
 
     if (!accessToken) {
       return NextResponse.json(

@@ -4,16 +4,22 @@ import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import styles from './inspections.module.scss'
 import InspectionCard from './inpection-card/InspectionCard'
+import { useAuthStore } from '@/lib/authStore'
 
 export default function Inspections() {
   const [inspections, setInspections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const accessToken = useAuthStore((state) => state.accessToken)
 
   useEffect(() => {
     async function fetchInspections() {
       try {
-        const response = await fetch('/api/inspections')
+        const response = await fetch('/api/inspections', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
         if (!response.ok) throw new Error('Failed to fetch inspections')
         const data = await response.json()
         setInspections(data)
@@ -25,7 +31,7 @@ export default function Inspections() {
     }
 
     fetchInspections()
-  }, [])
+  }, [accessToken])
 
   return (
     <article className={styles.inspections}>

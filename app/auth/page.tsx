@@ -4,6 +4,7 @@ import styles from './auth.module.scss'
 import { useState, useRef } from "react"
 import { toast } from "react-toastify"
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/authStore'
 
 export default function AuthPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -12,6 +13,7 @@ export default function AuthPage() {
     const [passcode, setPasscode] = useState(["", "", "", "", "", ""])
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
     const router = useRouter()
+    const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
     async function requestPasscode() {
         if (!email) {
@@ -70,8 +72,9 @@ export default function AuthPage() {
         }
     }
 
-    async function verifyPasscode() {
-        const code = passcode.join("")
+    async function verifyPasscode(codeOverride?: string) {
+        const code = codeOverride || passcode.join("")
+        console.log("Passcode:", code)
         if (code.length !== 6) {
             toast.error("Please enter the complete 6-digit passcode", { hideProgressBar: true })
             return
@@ -86,16 +89,20 @@ export default function AuthPage() {
             })
 
             const data = await response.json()
+            console.log("Response:", data)
 
             if (response.ok) {
                 toast.success("Login successful", { hideProgressBar: true })
-                router.push('/dashboard')
+                setAccessToken(data.accessToken)
+                console.log("Access token in auth page:", data.accessToken)
+                console.log("Navigating to dashboard...")
             } else {
                 toast.error(data.error || "Invalid passcode", { hideProgressBar: true })
                 setPasscode(["", "", "", "", "", ""])
                 inputRefs.current[0]?.focus()
             }
         } catch (error) {
+            console.error("Error:", error)
             toast.error("Something went wrong", { hideProgressBar: true })
         } finally {
             setIsLoading(false)
@@ -116,9 +123,10 @@ export default function AuthPage() {
             inputRefs.current[index + 1]?.focus()
         }
 
-        // Auto-submit when complete
+        // Auto-submit when complete - pass complete code directly
         if (index === 5 && value) {
-            verifyPasscode()
+            const completeCode = newPasscode.join("")
+            setTimeout(() => verifyPasscode(completeCode), 50)
         }
     }
 

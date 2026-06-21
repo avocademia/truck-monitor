@@ -7,18 +7,30 @@ import Vehicles from '@/components/dashboard/vehicles/Vehicles'
 import Profile from '@/components/dashboard/profile/Profile'
 import Link from 'next/link'
 import { useUserStore } from '@/stores/userStore'
+import { useAuthStore } from '@/lib/authStore'
 import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<'vehicles' | 'inspections' | 'profile'>('inspections')
     const setUser = useUserStore((state) => state.setUser)
+    const accessToken = useAuthStore((state) => state.accessToken)
     const router = useRouter()
 
     useEffect(() => {
+        // Redirect to auth if no token
+        if (!accessToken) {
+            router.push('/auth')
+            return
+        }
+
         // Fetch user data on mount
         async function fetchUser() {
             try {
-                const response = await fetch('/api/auth/validate-token')
+                const response = await fetch('/api/auth/validate-token', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                })
                 if (response.ok) {
                     const data = await response.json()
                     setUser(data.user)
@@ -32,7 +44,7 @@ export default function Dashboard() {
             }
         }
         fetchUser()
-    }, [setUser, router])
+    }, [setUser, router, accessToken])
 
     return (
         <main>
