@@ -5,42 +5,27 @@ import { Icon } from '@iconify/react'
 import { useSearchParams } from 'next/navigation'
 import styles from './inspection.module.scss'
 
-interface InspectionItem {
-  id: string
-  itemKey: string
-  status: string | null
-}
-
-interface Inspection {
-  id: string
-  vehicleRegistration: string
-  vehicleMake: string | null
-  edmReading: string | null
-  trailerRegistration: string | null
-  driverName: string
-  driverAge: string | null
-  licenceExpiryDate: string | null
-  tripFrom: string | null
-  tripTo: string | null
-  consignee: string | null
-  cargoType: string | null
-  hazmat: boolean
-  loadSecured: string | null
-  driverCellPhone: string | null
-  driverComments: string | null
-  inspectorComments: string | null
-  inspectedBySignature: string | null
-  inspectedByDate: string | null
-  approvedBySignature: string | null
-  approvedByDate: string | null
-  approvedByTime: string | null
-  createdAt: string
-  items: InspectionItem[]
+const getVehicleIcon = (bodyType: string) => {
+  const iconMap: Record<string, string> = {
+    MOTORBIKE: 'mdi:motorbike',
+    PICKUP: 'mdi:truck-pickup',
+    VAN: 'mdi:van-utility',
+    BOX_TRUCK: 'mdi:truck',
+    FLATBED_TRUCK: 'mdi:truck-flatbed',
+    REFRIGERATED_TRUCK: 'mdi:truck-cargo-container',
+    TRAILER: 'mdi:truck-trailer',
+    FLATBED_TRAILER: 'mdi:truck-trailer',
+    LOWBED_TRAILER: 'mdi:truck-trailer',
+    REFRIGERATED_TRAILER: 'mdi:truck-trailer',
+    TANKER_TRAILER: 'mdi:truck-trailer',
+    CONTAINER_TRAILER: 'mdi:truck-trailer',
+  }
+  return iconMap[bodyType] || 'mdi:truck'
 }
 
 export default function Inspection() {
   const params = useSearchParams()
-  const [inspection, setInspection] = useState<Inspection | null>(null)
+  const [inspection, setInspection] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -95,9 +80,13 @@ export default function Inspection() {
     })
   }
 
-  const attentionCount = inspection.items.filter(item => item.status === 'attention').length
-  const okCount = inspection.items.filter(item => item.status === 'ok').length
-  const totalCount = inspection.items.length
+  const attentionCount = inspection.items?.filter((item: any) => item.status === 'ATTENTION').length || 0
+  const okCount = inspection.items?.filter((item: any) => item.status === 'OK').length || 0
+  const totalCount = inspection.items?.length || 0
+
+  const vehicleIcon = inspection.vehicle?.body_type 
+    ? getVehicleIcon(inspection.vehicle.body_type)
+    : 'mdi:truck'
 
   return (
     <main className={styles.inspection}>
@@ -111,10 +100,10 @@ export default function Inspection() {
 
       <div className={styles.summaryCard}>
         <div className={styles.vehicleHeader}>
-          <span className={styles.emoji}>🚛</span>
+          <Icon icon={vehicleIcon} className={styles.vehicleIcon} />
           <div className={styles.vehicleInfo}>
-            <h2 className={styles.registration}>{inspection.vehicleRegistration}</h2>
-            <p className={styles.make}>{inspection.vehicleMake || 'Unknown make'}</p>
+            <h2 className={styles.registration}>{inspection.vehicle?.registration_no || 'N/A'}</h2>
+            <p className={styles.make}>{inspection.vehicle?.make ? `${inspection.vehicle.make} ${inspection.vehicle.model || ''}` : 'Unknown'}</p>
           </div>
         </div>
 
@@ -139,29 +128,17 @@ export default function Inspection() {
         <div className={styles.detailsGrid}>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Driver</span>
-            <span className={styles.detailValue}>{inspection.driverName}</span>
+            <span className={styles.detailValue}>{inspection.driver ? `${inspection.driver.first_name} ${inspection.driver.last_name}` : 'N/A'}</span>
           </div>
           <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Driver Age</span>
-            <span className={styles.detailValue}>{inspection.driverAge || 'N/A'}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>License Expiry</span>
-            <span className={styles.detailValue}>{formatDate(inspection.licenceExpiryDate)}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>EDM Reading</span>
-            <span className={styles.detailValue}>{inspection.edmReading || 'N/A'}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Trailer</span>
-            <span className={styles.detailValue}>{inspection.trailerRegistration || 'N/A'}</span>
+            <span className={styles.detailLabel}>Inspector</span>
+            <span className={styles.detailValue}>{inspection.inspector ? `${inspection.inspector.first_name} ${inspection.inspector.last_name}` : 'N/A'}</span>
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Route</span>
             <span className={styles.detailValue}>
-              {inspection.tripFrom && inspection.tripTo 
-                ? `${inspection.tripFrom} → ${inspection.tripTo}` 
+              {inspection.trip_from && inspection.trip_to 
+                ? `${inspection.trip_from} → ${inspection.trip_to}` 
                 : 'N/A'}
             </span>
           </div>
@@ -170,65 +147,37 @@ export default function Inspection() {
             <span className={styles.detailValue}>{inspection.consignee || 'N/A'}</span>
           </div>
           <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Cargo Type</span>
-            <span className={styles.detailValue}>{inspection.cargoType || 'N/A'}</span>
-          </div>
-          <div className={styles.detailItem}>
             <span className={styles.detailLabel}>HAZMAT</span>
             <span className={styles.detailValue}>{inspection.hazmat ? 'Yes' : 'No'}</span>
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Load Secured</span>
-            <span className={styles.detailValue}>{inspection.loadSecured || 'N/A'}</span>
+            <span className={styles.detailValue}>{inspection.load_secured ? 'Yes' : 'No'}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Status</span>
+            <span className={styles.detailValue}>{inspection.inspection_status}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Type</span>
+            <span className={styles.detailValue}>{inspection.type?.replace(/_/g, ' ')}</span>
           </div>
         </div>
       </div>
 
-      <div className={styles.detailsSection}>
-        <h3 className={styles.sectionTitle}>Sign-off</h3>
-        <div className={styles.signOffGrid}>
-          <div className={styles.signOffBlock}>
-            <p className={styles.signOffRole}>Driver</p>
-            <div className={styles.signOffDetail}>
-              <span className={styles.signOffLabel}>Inspected by:</span>
-              <span className={styles.signOffValue}>{inspection.inspectedBySignature || 'N/A'}</span>
-            </div>
-            <div className={styles.signOffDetail}>
-              <span className={styles.signOffLabel}>Date:</span>
-              <span className={styles.signOffValue}>{formatDate(inspection.inspectedByDate)}</span>
-            </div>
-          </div>
-          <div className={styles.signOffBlock}>
-            <p className={styles.signOffRole}>Approved by</p>
-            <div className={styles.signOffDetail}>
-              <span className={styles.signOffLabel}>Signature:</span>
-              <span className={styles.signOffValue}>{inspection.approvedBySignature || 'N/A'}</span>
-            </div>
-            <div className={styles.signOffDetail}>
-              <span className={styles.signOffLabel}>Date:</span>
-              <span className={styles.signOffValue}>{formatDate(inspection.approvedByDate)}</span>
-            </div>
-            <div className={styles.signOffDetail}>
-              <span className={styles.signOffLabel}>Time:</span>
-              <span className={styles.signOffValue}>{inspection.approvedByTime || 'N/A'}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {(inspection.driverComments || inspection.inspectorComments) && (
+      {(inspection.driver_comments || inspection.inspector_comments) && (
         <div className={styles.detailsSection}>
           <h3 className={styles.sectionTitle}>Comments</h3>
-          {inspection.driverComments && (
+          {inspection.driver_comments && (
             <div className={styles.commentBlock}>
               <p className={styles.commentLabel}>Driver's Comments:</p>
-              <p className={styles.commentText}>{inspection.driverComments}</p>
+              <p className={styles.commentText}>{inspection.driver_comments}</p>
             </div>
           )}
-          {inspection.inspectorComments && (
+          {inspection.inspector_comments && (
             <div className={styles.commentBlock}>
               <p className={styles.commentLabel}>Inspector's Comments:</p>
-              <p className={styles.commentText}>{inspection.inspectorComments}</p>
+              <p className={styles.commentText}>{inspection.inspector_comments}</p>
             </div>
           )}
         </div>
@@ -236,7 +185,7 @@ export default function Inspection() {
 
       <div className={styles.detailsSection}>
         <h3 className={styles.sectionTitle}>Inspection Date</h3>
-        <p className={styles.inspectionDate}>{formatDate(inspection.createdAt)}</p>
+        <p className={styles.inspectionDate}>{formatDate(inspection.created_at)}</p>
       </div>
     </main>
   )

@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react'
 import { Icon } from '@iconify/react'
 import styles from './dashboard.module.scss'
 import Inspections from '@/components/dashboard/inspections/Inspections'
+import Vehicles from '@/components/dashboard/vehicles/Vehicles'
 import Profile from '@/components/dashboard/profile/Profile'
 import Link from 'next/link'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
-    const [activeTab, setActiveTab] = useState<'inspections' | 'profile'>('inspections')
+    const [activeTab, setActiveTab] = useState<'vehicles' | 'inspections' | 'profile'>('inspections')
     const setUser = useUserStore((state) => state.setUser)
     const router = useRouter()
 
@@ -45,12 +46,14 @@ export default function Dashboard() {
                 </div>
                 <nav>
                     <ul>
+                        <li onClick={() => setActiveTab('vehicles')}>Vehicles</li>
                         <li onClick={() => setActiveTab('inspections')}>Inspections</li>
                         <li onClick={() => setActiveTab('profile')}>Profile</li>
                     </ul>
                 </nav>
             </section>
             <section>
+                {activeTab === 'vehicles' && <Vehicles/>}
                 {activeTab === 'inspections' && <Inspections/>}
                 {activeTab === 'profile' && <Profile/>}
             </section>

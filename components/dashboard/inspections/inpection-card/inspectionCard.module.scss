@@ -34,8 +34,9 @@
   min-width: 0;
 }
 
-.emoji {
+.vehicleIcon {
   font-size: 2rem;
+  color: $primary-color;
   flex-shrink: 0;
 }
 
@@ -134,7 +135,7 @@
     font-size: 1rem;
   }
 
-  .emoji {
+  .vehicleIcon {
     font-size: 1.75rem;
   }
 }

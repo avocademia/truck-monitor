@@ -6,10 +6,40 @@ export async function GET() {
   try {
     const inspections = await prisma.inspection.findMany({
       include: {
+        vehicle: {
+          select: {
+            id: true,
+            registration_no: true,
+            make: true,
+            model: true,
+            body_type: true,
+          }
+        },
+        driver: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          }
+        },
+        inspector: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          }
+        },
+        approved_by: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          }
+        },
         items: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     })
 
@@ -30,35 +60,51 @@ export async function POST(request: NextRequest) {
 
     const inspection = await prisma.inspection.create({
       data: {
-        vehicleRegistration: body.header.vehicleRegistration,
-        vehicleMake: body.header.vehicleMake,
-        edmReading: body.header.edmReading,
-        trailerRegistration: body.header.trailerRegistration,
-        driverName: body.header.driverName,
-        driverAge: body.header.driverAge,
-        licenceExpiryDate: body.header.licenceExpiryDate,
-        tripFrom: body.header.tripFrom,
-        tripTo: body.header.tripTo,
+        type: 'PRE_TRIP',
+        vehicle_id: body.vehicleId,
+        driver_id: body.driverId,
+        inspector_id: body.inspectorId,
+        trip_from: body.header.tripFrom,
+        trip_to: body.header.tripTo,
         consignee: body.header.consignee,
-        cargoType: body.header.cargoType,
         hazmat: body.header.hazmat || false,
-        loadSecured: body.loadSecured,
-        driverCellPhone: body.driverCellPhone,
-        driverComments: body.driverComments,
-        inspectorComments: body.inspectorComments,
-        inspectedBySignature: body.inspectedBySignature,
-        inspectedByDate: body.inspectedByDate,
-        approvedBySignature: body.approvedBySignature,
-        approvedByDate: body.approvedByDate,
-        approvedByTime: body.approvedByTime,
+        load_secured: body.loadSecured === 'yes',
+        driver_comments: body.driverComments,
+        inspector_comments: body.inspectorComments,
+        inspection_status: 'SUBMITTED',
         items: {
-          create: Object.entries(body.statuses || {}).map(([itemKey, status]) => ({
-            itemKey,
-            status: status as string | null,
+          create: Object.entries(body.statuses || {})
+            .filter(([_, status]) => status !== null)
+            .map(([itemKey, status]) => ({
+            item_key: itemKey,
+            status: (status as string).toUpperCase() as 'OK' | 'ATTENTION' | 'NOT_APPLICABLE',
           })),
         },
       },
       include: {
+        vehicle: {
+          select: {
+            id: true,
+            registration_no: true,
+            make: true,
+            model: true,
+            body_type: true,
+          }
+        },
+        driver: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          }
+        },
+        inspector: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+          }
+        },
         items: true,
       },
     })

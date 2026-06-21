@@ -5,18 +5,8 @@ import { Icon } from '@iconify/react'
 import styles from './inspections.module.scss'
 import InspectionCard from './inpection-card/InspectionCard'
 
-interface Inspection {
-  id: string
-  vehicleRegistration: string
-  vehicleMake: string | null
-  driverName: string
-  createdAt: string
-  tripFrom: string | null
-  tripTo: string | null
-}
-
 export default function Inspections() {
-  const [inspections, setInspections] = useState<Inspection[]>([])
+  const [inspections, setInspections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
