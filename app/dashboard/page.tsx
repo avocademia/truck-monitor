@@ -14,7 +14,7 @@ export default function Dashboard() {
             <section className={styles.nav}>
                 <div className={styles.navHeader}>
                     <h1>Dashboard</h1>
-                    <Link href="/" className={styles.backBtn}>
+                    <Link href="/create-admin" className={styles.backBtn}>
                         <Icon icon="mdi:clipboard-text" />
                         <span>New Inspection</span>
                     </Link>
