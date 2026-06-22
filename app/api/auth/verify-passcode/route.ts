@@ -75,8 +75,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Return token in response body instead of cookie
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       accessToken,
       user: {
@@ -87,6 +86,16 @@ export async function POST(request: NextRequest) {
         role: user.role
       }
     })
+  
+    response.cookies.set("access_token", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  });
+    
+    return response
   } catch (error) {
     console.error('Error verifying passcode:', error)
     return NextResponse.json(
