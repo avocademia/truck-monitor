@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { InspectionItemStatus } from '@prisma/client'
+//import { prisma } from '@/lib/prisma'
+//import { InspectionItemStatus } from '@prisma/client'
 
 // GET /api/inspections/[id] - Get a single inspection
 export async function GET(
@@ -8,6 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    /*
     const { id } = await params
     const inspection = await prisma.inspection.findUnique({
       where: { id },
@@ -24,6 +25,7 @@ export async function GET(
     }
 
     return NextResponse.json(inspection)
+    */
   } catch (error) {
     console.error('Error fetching inspection:', error)
     return NextResponse.json(
@@ -39,47 +41,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const body = await request.json()
-
-    const inspection = await prisma.inspection.update({
-      where: { id },
-      data: {
-        vehicleRegistration: body.header.vehicleRegistration,
-        vehicleMake: body.header.vehicleMake,
-        edmReading: body.header.edmReading,
-        trailerRegistration: body.header.trailerRegistration,
-        driverName: body.header.driverName,
-        driverAge: body.header.driverAge,
-        licenceExpiryDate: body.header.licenceExpiryDate,
-        tripFrom: body.header.tripFrom,
-        tripTo: body.header.tripTo,
-        consignee: body.header.consignee,
-        cargoType: body.header.cargoType,
-        hazmat: body.header.hazmat,
-        loadSecured: body.loadSecured,
-        driverCellPhone: body.driverCellPhone,
-        driverComments: body.driverComments,
-        inspectorComments: body.inspectorComments,
-        inspectedBySignature: body.inspectedBySignature,
-        inspectedByDate: body.inspectedByDate,
-        approvedBySignature: body.approvedBySignature,
-        approvedByDate: body.approvedByDate,
-        approvedByTime: body.approvedByTime,
-        items: body.statuses ? {
-          deleteMany: {},
-          create: Object.entries(body.statuses).map(([itemKey, status]) => ({
-            item_key: itemKey,
-            status: status as InspectionItemStatus,
-          })),
-        } : undefined,
-      },
-      include: {
-        items: true,
-      },
-    })
-
-    return NextResponse.json(inspection)
+    //populate
   } catch (error) {
     console.error('Error updating inspection:', error)
     return NextResponse.json(
@@ -95,12 +57,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    await prisma.inspection.delete({
-      where: { id },
-    })
-
-    return NextResponse.json({ success: true })
+    //populate
   } catch (error) {
     console.error('Error deleting inspection:', error)
     return NextResponse.json(

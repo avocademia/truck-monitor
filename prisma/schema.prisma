@@ -22,33 +22,33 @@ enum UserRole {
 }
 
 model User {
-     id Int @id @default(autoincrement())
-     first_name String
-     middle_name String?
-     last_name String
-     dob DateTime
-     email String @unique
-     phone String @unique
-     nationality String
-     id_no String
-     license_exp_date DateTime?
-     id_type IdentificationType
-     role UserRole
-     created_at DateTime @default(now())
-     created_by Int?
-     passcode String?
-     passcode_expiry DateTime?
+      id Int @id @default(autoincrement())
+      first_name String
+      middle_name String?
+      last_name String
+      dob DateTime
+      email String @unique
+      phone String @unique
+      nationality String
+      id_no String
+      license_exp_date DateTime?
+      id_type IdentificationType
+      role UserRole
+      created_at DateTime @default(now())
+      created_by Int?
+      passcode String?
+      passcode_expiry DateTime?
 
-     inspectionsAsDriver Inspection[] @relation("DriverInspections")
-inspectionsAsInspector Inspection[] @relation("InspectorInspections")
-inspectionsApproved Inspection[] @relation("ApprovedInspections")
+      inspections_as_driver Inspection[] @relation("DriverInspections")
+      inspections_as_inspector Inspection[] @relation("InspectorInspections")
+      inspections_approved Inspection[] @relation("ApprovedInspections")
    
-     assignedVehicles Vehicle[] @relation("AssignedVehicle")
+      assigned_vehicles Vehicle[] @relation("AssignedVehicle")
 
-     sessions Session[]
-     createdUsers User[] @relation("UserCreator")
+      sessions Session[]
+      created_users User[] @relation("UserCreator")
 
-     creator User? @relation("UserCreator", fields: [created_by], references: [id])
+      creator User? @relation("UserCreator", fields: [created_by], references: [id])
 }
 
 model Session {
