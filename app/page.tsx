@@ -5,6 +5,8 @@ import Image from "next/image"
 import { Icon } from '@iconify/react'
 import styles from './home.module.scss'
 import { useAuthStore } from "@/lib/authStore"
+import hero from '@/public/hero.jpg'
+import other from '@/public/other.jpg'
 
 /* ==========================================================================
    Content data — sourced from the company profile PDF
@@ -175,7 +177,7 @@ export default function KaberianLanding() {
             <section id="hero" className={styles.hero}>
                 <div className={styles.heroBg}>
                     {/* IMAGE PLACEHOLDER: hero highway/sunset photo */}
-                    <Image src="/images/placeholder.jpg" alt="Kaberian truck on the highway at sunset" fill priority className={styles.imageFill} />
+                    <Image src={hero} alt="Kaberian truck on the highway at sunset" fill priority className={styles.imageFill} />
                     <span className={styles.imagePlaceholderLabel}>HERO IMAGE — highway / sunset truck photo</span>
                 </div>
                 <div className={styles.heroOverlay} />
@@ -238,7 +240,8 @@ export default function KaberianLanding() {
                         from origin to destination.
                     </p>
                 </div>
-                <ImagePlaceholder label="ABOUT IMAGE — container / depot photo" aspect="4/5" alt="Container being loaded onto a flatbed trailer" />
+                {/*<ImagePlaceholder label="ABOUT IMAGE — container / depot photo" aspect="4/5" alt="Container being loaded onto a flatbed trailer" />*/}
+                <Image src={hero} alt="about us"/>
             </section>
 
             {/* ================= SERVICES / CORE STRENGTHS ================= */}
@@ -291,7 +294,8 @@ export default function KaberianLanding() {
 
             {/* ================= FLEET ================= */}
             <section id="fleet" className={styles.fleet}>
-                <ImagePlaceholder label="FLEET IMAGE — truck fleet / GPRS tracking photo" aspect="16/11" alt="Kaberian truck fitted with tracking equipment" />
+                {/*<ImagePlaceholder label="FLEET IMAGE — truck fleet / GPRS tracking photo" aspect="16/11" alt="Kaberian truck fitted with tracking equipment" />*/}
+                <Image src={other} alt="fleet"/>
                 <div className={styles.fleetText}>
                     <p className={styles.sectionEyebrow}>Fleet Advantage</p>
                     <h2>Equipped for whatever the cargo demands.</h2>
