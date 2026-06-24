@@ -4,15 +4,16 @@ import { prisma } from '@/lib/prisma'
 // GET /api/vehicles/[id]/inspections - Get inspections for a specific vehicle
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const searchParams = request.nextUrl.searchParams
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
+    const {id} = await params
 
     const inspections = await prisma.inspection.findMany({
-      where: { vehicle_id: params.id },
+      where: { vehicle_id: id},
       include: {
         driver: {
           select: {
@@ -45,7 +46,7 @@ export async function GET(
     })
 
     const totalCount = await prisma.inspection.count({
-      where: { vehicle_id: params.id }
+      where: { vehicle_id: id }
     })
 
     return NextResponse.json({

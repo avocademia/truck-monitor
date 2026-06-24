@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { InspectionItemStatus } from '@prisma/client'
 
 // GET /api/inspections/[id] - Get a single inspection
 export async function GET(
@@ -68,8 +69,8 @@ export async function PUT(
         items: body.statuses ? {
           deleteMany: {},
           create: Object.entries(body.statuses).map(([itemKey, status]) => ({
-            itemKey,
-            status: status as string | null,
+            item_key: itemKey,
+            status: status as InspectionItemStatus,
           })),
         } : undefined,
       },
