@@ -7,6 +7,7 @@ import styles from './home.module.scss'
 import { useAuthStore } from "@/lib/authStore"
 import hero from '@/public/hero.jpg'
 import other from '@/public/other.jpg'
+import logo from '@/public/logo.jpg'
 
 /* ==========================================================================
    Content data — sourced from the company profile PDF
@@ -127,7 +128,7 @@ export default function KaberianLanding() {
                     <button className={styles.brand} onClick={() => scrollTo('hero')}>
                         <div className={styles.logoMark}>
                             {/* IMAGE PLACEHOLDER: company logo mark */}
-                            <Image src="/images/placeholder.jpg" alt="Kaberian East Africa Holdings logo" fill className={styles.imageFill} />
+                            <Image src={logo} alt="Kaberian East Africa Holdings logo" fill className={styles.imageFill} />
                         </div>
                         <span className={styles.brandText}>
                             KABERIAN
@@ -363,7 +364,7 @@ export default function KaberianLanding() {
                     <div className={styles.footerBrand}>
                         <div className={styles.logoMark}>
                             {/* IMAGE PLACEHOLDER: footer logo mark */}
-                            <Image src="/images/placeholder.jpg" alt="Kaberian East Africa Holdings logo" fill className={styles.imageFill} />
+                            <Image src={logo} alt="Kaberian East Africa Holdings logo" fill className={styles.imageFill} />
                         </div>
                         <span className={styles.brandText}>
                             KABERIAN
