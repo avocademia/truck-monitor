@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react"
 import { Icon } from '@iconify/react'
 import { toast } from "react-toastify"
-import styles from './home.module.scss'
+import styles from './createInspection.module.scss'
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUserStore } from '@/stores/userStore'
