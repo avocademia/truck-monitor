@@ -128,12 +128,8 @@ export default function KaberianLanding() {
                     <button className={styles.brand} onClick={() => scrollTo('hero')}>
                         <div className={styles.logoMark}>
                             {/* IMAGE PLACEHOLDER: company logo mark */}
-                            <Image src={logo} alt="Kaberian East Africa Holdings logo" fill className={styles.imageFill} />
+                            <Image src={logo} alt="Kaberian East Africa Holdings logo" className={styles.imageFill} width={150} height={150} />
                         </div>
-                        <span className={styles.brandText}>
-                            KABERIAN
-                            <small>East Africa Holdings</small>
-                        </span>
                     </button>
 
                     <nav className={styles.navLinks} aria-label="Primary">
