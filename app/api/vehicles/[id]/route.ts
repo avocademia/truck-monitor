@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma'
 // GET /api/vehicles/[id] - Get single vehicle with details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const {id} = await params
     const vehicle = await prisma.vehicle.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         assigned_driver: {
           select: {
@@ -90,9 +91,10 @@ export async function GET(
 // PUT /api/vehicles/[id] - Update vehicle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const {id} = await params
     const body = await request.json()
     const {
       registration_no,
@@ -110,7 +112,7 @@ export async function PUT(
     } = body
 
     const vehicle = await prisma.vehicle.update({
-      where: { id: params.id },
+      where: {id},
       data: {
         registration_no,
         registration_country,
@@ -159,11 +161,12 @@ export async function PUT(
 // DELETE /api/vehicles/[id] - Delete vehicle
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const {id} = await params
   try {
     await prisma.vehicle.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })
